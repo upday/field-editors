@@ -19,7 +19,7 @@ import { createHrPlugin } from './Hr';
 import { createHyperlinkPlugin } from './Hyperlink';
 import { createListPlugin } from './List';
 import { createMarksPlugin } from './Marks';
-import { createNormalizerPlugin } from './Normalizer';
+// import { createNormalizerPlugin } from './Normalizer';
 import { createParagraphPlugin } from './Paragraph';
 import { createPasteHTMLPlugin } from './PasteHTML';
 import { createQuotePlugin } from './Quote';
@@ -76,7 +76,7 @@ export const getPlugins = (
   createSoftBreakPlugin(),
   createExitBreakPlugin(),
   createResetNodePlugin(),
-  createNormalizerPlugin(),
+  // createNormalizerPlugin(),
 ];
 
 export const disableCorePlugins: PlateProps['disableCorePlugins'] = {
