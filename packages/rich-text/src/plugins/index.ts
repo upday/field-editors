@@ -8,7 +8,7 @@ import { createDeserializeDocxPlugin } from '@udecode/plate-serializer-docx';
 
 import { RichTextPlugin } from '../types';
 import { createSoftBreakPlugin, createExitBreakPlugin, createResetNodePlugin } from './Break';
-import { createDragAndDropPlugin } from './DragAndDrop';
+// import { createDragAndDropPlugin } from './DragAndDrop';
 import {
   createEmbeddedAssetBlockPlugin,
   createEmbeddedEntryBlockPlugin,
@@ -43,7 +43,7 @@ export const getPlugins = (
   createTrackingPlugin(onAction),
 
   // Global / Global shortcuts
-  createDragAndDropPlugin(),
+  // createDragAndDropPlugin(),
 
   // Block Elements
   createParagraphPlugin(),
