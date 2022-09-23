@@ -1,14 +1,15 @@
 import React from 'react';
 
 import { FieldExtensionSDK } from '@contentful/app-sdk';
-import { Flex } from '@contentful/f36-components';
+import { Flex, Stack } from '@contentful/f36-components';
 import tokens from '@contentful/f36-tokens';
 import { BLOCKS, INLINES, MARKS } from '@contentful/rich-text-types';
 import { css } from 'emotion';
 
 import { useContentfulEditor } from '../ContentfulEditorProvider';
 import { isNodeTypeSelected } from '../helpers/editor';
-import { isNodeTypeEnabled, isMarkEnabled } from '../helpers/validations';
+import { isMarkEnabled, isNodeTypeEnabled } from '../helpers/validations';
+import { insertEntity } from '../plugins/EmbeddedEntityBlock/Util';
 import { ToolbarHeadingButton } from '../plugins/Heading';
 import { ToolbarHrButton } from '../plugins/Hr';
 import { ToolbarHyperlinkButton } from '../plugins/Hyperlink';
@@ -22,8 +23,15 @@ import { ToolbarTableButton } from '../plugins/Table';
 import { useSdkContext } from '../SdkProvider';
 import { EmbedEntityWidget } from './components/EmbedEntityWidget';
 
-type ToolbarProps = {
+export type ToolbarProps = {
   isDisabled?: boolean;
+  hideEmbed?: boolean;
+  renderSecondToolbarRow?: (args: {
+    insertEntity: (
+      nodeType: BLOCKS | INLINES,
+      entity: { sys: { id: string; type: string } }
+    ) => void;
+  }) => React.ReactNode | React.ReactNode[];
 };
 
 const styles = {
@@ -56,9 +64,16 @@ const styles = {
     flexWrap: 'wrap',
     marginRight: '20px',
   }),
+  toolbarTop: css({
+    width: '100%',
+  }),
+  toolbarBottom: css({
+    width: '100%',
+    padding: `0 ${tokens.spacingS} `,
+  }),
 };
 
-const Toolbar = ({ isDisabled }: ToolbarProps) => {
+const Toolbar = ({ isDisabled, renderSecondToolbarRow, hideEmbed }: ToolbarProps) => {
   const sdk = useSdkContext();
   const editor = useContentfulEditor();
   const canInsertBlocks = !isNodeTypeSelected(editor, BLOCKS.TABLE);
@@ -71,42 +86,57 @@ const Toolbar = ({ isDisabled }: ToolbarProps) => {
 
   return (
     <Flex testId="toolbar" className={styles.toolbar} alignItems="center">
-      <div className={styles.formattingOptionsWrapper}>
-        <ToolbarHeadingButton isDisabled={isDisabled || !canInsertBlocks} />
+      <Stack alignItems="center" flexDirection="column" flexGrow={1} spacing="spacing2Xs">
+        <Flex alignItems="center" className={styles.toolbarTop}>
+          <div className={styles.formattingOptionsWrapper}>
+            <ToolbarHeadingButton isDisabled={isDisabled || !canInsertBlocks} />
 
-        {validationInfo.isAnyMarkEnabled && <span className={styles.divider} />}
+            {validationInfo.isAnyMarkEnabled && <span className={styles.divider} />}
 
-        {isMarkEnabled(sdk.field, MARKS.BOLD) && <ToolbarBoldButton isDisabled={isDisabled} />}
-        {isMarkEnabled(sdk.field, MARKS.ITALIC) && <ToolbarItalicButton isDisabled={isDisabled} />}
-        {isMarkEnabled(sdk.field, MARKS.UNDERLINE) && (
-          <ToolbarUnderlineButton isDisabled={isDisabled} />
-        )}
-        {isMarkEnabled(sdk.field, MARKS.CODE) && <ToolbarCodeButton isDisabled={isDisabled} />}
+            {isMarkEnabled(sdk.field, MARKS.BOLD) && <ToolbarBoldButton isDisabled={isDisabled} />}
+            {isMarkEnabled(sdk.field, MARKS.ITALIC) && (
+              <ToolbarItalicButton isDisabled={isDisabled} />
+            )}
+            {isMarkEnabled(sdk.field, MARKS.UNDERLINE) && (
+              <ToolbarUnderlineButton isDisabled={isDisabled} />
+            )}
+            {isMarkEnabled(sdk.field, MARKS.CODE) && <ToolbarCodeButton isDisabled={isDisabled} />}
 
-        {validationInfo.isAnyHyperlinkEnabled && (
-          <>
-            <span className={styles.divider} />
-            <ToolbarHyperlinkButton isDisabled={isDisabled} />
-          </>
-        )}
+            {validationInfo.isAnyHyperlinkEnabled && (
+              <>
+                <span className={styles.divider} />
+                <ToolbarHyperlinkButton isDisabled={isDisabled} />
+              </>
+            )}
 
-        {validationInfo.isAnyBlockFormattingEnabled && <span className={styles.divider} />}
+            {validationInfo.isAnyBlockFormattingEnabled && <span className={styles.divider} />}
 
-        <ToolbarListButton isDisabled={isDisabled || !canInsertBlocks} />
+            <ToolbarListButton isDisabled={isDisabled || !canInsertBlocks} />
 
-        {isNodeTypeEnabled(sdk.field, BLOCKS.QUOTE) && (
-          <ToolbarQuoteButton isDisabled={isDisabled || !canInsertBlocks} />
-        )}
-        {isNodeTypeEnabled(sdk.field, BLOCKS.HR) && (
-          <ToolbarHrButton isDisabled={isDisabled || !canInsertBlocks} />
-        )}
-        {isNodeTypeEnabled(sdk.field, BLOCKS.TABLE) && (
-          <ToolbarTableButton isDisabled={shouldDisableTables} />
-        )}
-      </div>
-      <div className={styles.embedActionsWrapper}>
-        <EmbedEntityWidget isDisabled={isDisabled} canInsertBlocks={canInsertBlocks} />
-      </div>
+            {isNodeTypeEnabled(sdk.field, BLOCKS.QUOTE) && (
+              <ToolbarQuoteButton isDisabled={isDisabled || !canInsertBlocks} />
+            )}
+            {isNodeTypeEnabled(sdk.field, BLOCKS.HR) && (
+              <ToolbarHrButton isDisabled={isDisabled || !canInsertBlocks} />
+            )}
+            {isNodeTypeEnabled(sdk.field, BLOCKS.TABLE) && (
+              <ToolbarTableButton isDisabled={shouldDisableTables} />
+            )}
+          </div>
+          <div className={styles.embedActionsWrapper}>
+            <EmbedEntityWidget
+              isDisabled={isDisabled}
+              canInsertBlocks={!hideEmbed && canInsertBlocks}
+            />
+          </div>
+        </Flex>
+        <Flex flexWrap="wrap" flexGrow={1} className={styles.toolbarBottom} gap={tokens.spacingXs}>
+          {renderSecondToolbarRow?.({
+            insertEntity: (nodeType, entity) =>
+              insertEntity(nodeType, editor, entity, editor.tracking.onToolbarAction),
+          })}
+        </Flex>
+      </Stack>
     </Flex>
   );
 };
