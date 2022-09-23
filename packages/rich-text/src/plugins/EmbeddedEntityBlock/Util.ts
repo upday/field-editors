@@ -11,9 +11,9 @@ export async function selectEntityAndInsert(
   nodeType,
   sdk,
   editor,
-  logAction: TrackingPluginActions['onToolbarAction'] | TrackingPluginActions['onShortcutAction']
+  logAction?: TrackingPluginActions['onToolbarAction'] | TrackingPluginActions['onShortcutAction']
 ) {
-  logAction('openCreateEmbedDialog', { nodeType });
+  logAction?.('openCreateEmbedDialog', { nodeType });
 
   const { field, dialogs } = sdk;
   const baseConfig = newEntitySelectorConfigFromRichTextField(field, nodeType);
@@ -21,17 +21,25 @@ export async function selectEntityAndInsert(
     baseConfig.entityType === 'Asset' ? dialogs.selectSingleAsset : dialogs.selectSingleEntry;
   const config = { ...baseConfig, withCreate: true };
 
-  const { selection } = editor;
   const entity = await selectEntity(config);
   if (!entity) {
-    logAction('cancelCreateEmbedDialog', { nodeType });
+    logAction?.('cancelCreateEmbedDialog', { nodeType });
     return;
   }
 
-  Transforms.select(editor, selection);
+  insertEntity(nodeType, editor, entity, logAction);
+}
+
+export function insertEntity(
+  nodeType,
+  editor,
+  entity,
+  logAction?: TrackingPluginActions['onToolbarAction'] | TrackingPluginActions['onShortcutAction']
+) {
+  Transforms.select(editor, editor.selection);
   insertBlock(editor, nodeType, entity);
   ensureFollowingParagraph(editor);
-  logAction('insert', { nodeType });
+  logAction?.('insert', { nodeType });
 }
 
 function ensureFollowingParagraph(editor: RichTextEditor) {
