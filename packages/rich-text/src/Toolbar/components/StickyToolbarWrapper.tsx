@@ -1,6 +1,8 @@
-import React, { ReactNode } from 'react';
+import React, { Fragment, ReactNode } from 'react';
 
 import { css } from 'emotion';
+
+import { IFrameStickyToolbar } from './IFrameStickyToolbar';
 
 const styles = {
   nativeSticky: css`
@@ -13,11 +15,18 @@ const styles = {
 
 type StickyToolbarProps = {
   isDisabled?: boolean;
+  isIFrame?: boolean;
   children: ReactNode;
 };
 
-const StickyToolbarWrapper = ({ isDisabled, children }: StickyToolbarProps) => (
-  <div className={isDisabled ? '' : styles.nativeSticky}>{children}</div>
-);
+const StickyToolbarWrapper = ({ isDisabled, children, isIFrame }: StickyToolbarProps) => {
+  if (isDisabled) return <Fragment>{children}</Fragment>;
+
+  if (isIFrame) {
+    return <IFrameStickyToolbar>{children}</IFrameStickyToolbar>;
+  }
+
+  return <div className={isDisabled ? '' : styles.nativeSticky}>{children}</div>;
+};
 
 export default StickyToolbarWrapper;
