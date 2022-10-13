@@ -29,6 +29,7 @@ type ConnectedProps = {
   isToolbarHidden?: boolean;
   actionsDisabled?: boolean;
   isEmbedButtonHidden?: boolean;
+  isIFrame?: boolean;
   renderSecondToolbarRow?: ToolbarProps['renderSecondToolbarRow'];
 };
 
@@ -104,7 +105,7 @@ export const ConnectedRichTextEditor = (props: ConnectedProps) => {
             }}
             onChange={onValueChanged}>
             {!props.isToolbarHidden && (
-              <StickyToolbarWrapper isDisabled={props.isDisabled}>
+              <StickyToolbarWrapper isDisabled={props.isDisabled} isIFrame={props.isIFrame}>
                 <Toolbar
                   isDisabled={props.isDisabled}
                   hideEmbed={props.isEmbedButtonHidden}
