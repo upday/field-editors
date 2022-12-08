@@ -1,21 +1,21 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { FieldExtensionSDK } from '@contentful/app-sdk';
 import { EntityProvider } from '@contentful/field-editor-reference';
 import { FieldConnector } from '@contentful/field-editor-shared';
 import * as Contentful from '@contentful/rich-text-types';
-import { Plate, getPlateSelectors, getPlateActions } from '@udecode/plate-core';
+import { getPlateActions, getPlateSelectors, Plate } from '@udecode/plate-core';
 import { css, cx } from 'emotion';
 import deepEquals from 'fast-deep-equal';
 import noop from 'lodash/noop';
 
 import { ContentfulEditorIdProvider, getContentfulEditorId } from './ContentfulEditorProvider';
-import { getPlugins, disableCorePlugins } from './plugins';
+import { disableCorePlugins, getPlugins } from './plugins';
 import { RichTextTrackingActionHandler } from './plugins/Tracking';
 import { documentToEditorValue, normalizeEditorValue, setEditorContent } from './prepareDocument';
 import { styles } from './RichTextEditor.styles';
 import { SdkProvider } from './SdkProvider';
-import Toolbar from './Toolbar';
+import Toolbar, { ToolbarProps } from './Toolbar';
 import StickyToolbarWrapper from './Toolbar/components/StickyToolbarWrapper';
 import { useOnValueChanged } from './useOnValueChanged';
 
@@ -28,6 +28,9 @@ type ConnectedProps = {
   onChange?: (doc: Contentful.Document) => unknown;
   isToolbarHidden?: boolean;
   actionsDisabled?: boolean;
+  isEmbedButtonHidden?: boolean;
+  isIFrame?: boolean;
+  renderSecondToolbarRow?: ToolbarProps['renderSecondToolbarRow'];
 };
 
 export const ConnectedRichTextEditor = (props: ConnectedProps) => {
@@ -102,8 +105,12 @@ export const ConnectedRichTextEditor = (props: ConnectedProps) => {
             }}
             onChange={onValueChanged}>
             {!props.isToolbarHidden && (
-              <StickyToolbarWrapper isDisabled={props.isDisabled}>
-                <Toolbar isDisabled={props.isDisabled} />
+              <StickyToolbarWrapper isDisabled={props.isDisabled} isIFrame={props.isIFrame}>
+                <Toolbar
+                  isDisabled={props.isDisabled}
+                  hideEmbed={props.isEmbedButtonHidden}
+                  renderSecondToolbarRow={props.renderSecondToolbarRow}
+                />
               </StickyToolbarWrapper>
             )}
           </Plate>

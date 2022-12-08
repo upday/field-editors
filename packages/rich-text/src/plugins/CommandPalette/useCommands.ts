@@ -7,6 +7,7 @@ import { Editor, Transforms } from 'slate';
 import { RichTextEditor } from 'types';
 
 import { isNodeTypeSelected } from '../../helpers/editor';
+import getLinkedContentTypeIdsForNodeType from '../../helpers/getLinkedContentTypeIdsForNodeType';
 import { isNodeTypeEnabled } from '../../helpers/validations';
 import { COMMAND_PROMPT } from './constants';
 import { createInlineEntryNode } from './utils/createInlineEntryNode';
@@ -48,13 +49,21 @@ const removeQuery = (editor: PlateEditor) => {
 };
 
 export const useCommands = (sdk: FieldExtensionSDK, query: string, editor: RichTextEditor) => {
-  const contentTypes = sdk.space.getCachedContentTypes();
-
   const canInsertBlocks = !isNodeTypeSelected(editor, BLOCKS.TABLE);
 
   const inlineAllowed = isNodeTypeEnabled(sdk.field, INLINES.EMBEDDED_ENTRY);
   const entriesAllowed = isNodeTypeEnabled(sdk.field, BLOCKS.EMBEDDED_ENTRY) && canInsertBlocks;
   const assetsAllowed = isNodeTypeEnabled(sdk.field, BLOCKS.EMBEDDED_ASSET) && canInsertBlocks;
+
+  const cachedContentTypes = sdk.space.getCachedContentTypes();
+  const contentTypeIds = [
+    ...(inlineAllowed ? getLinkedContentTypeIdsForNodeType(sdk.field, INLINES.EMBEDDED_ENTRY) : []),
+    ...(entriesAllowed ? getLinkedContentTypeIdsForNodeType(sdk.field, BLOCKS.EMBEDDED_ENTRY) : []),
+  ];
+
+  const contentTypes = contentTypeIds.length
+    ? cachedContentTypes.filter((contentType) => contentTypeIds.includes(contentType.sys.id))
+    : cachedContentTypes;
 
   const [commands, setCommands] = useState((): CommandList => {
     const getEmbedEntry = (contentType) => {
