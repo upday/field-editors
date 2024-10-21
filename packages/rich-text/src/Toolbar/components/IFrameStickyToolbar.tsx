@@ -20,7 +20,7 @@ const styles = {
   `,
 };
 
-const CONTAINER_HEIGHT = 100;
+const CONTAINER_HEIGHT = 90;
 const threshold = [...new Array(CONTAINER_HEIGHT + 1).fill(0)].map((_, i) => i / CONTAINER_HEIGHT);
 
 function registerScrollPositionHandler(handler: (top: number) => void): () => void {
@@ -49,6 +49,7 @@ function registerScrollPositionHandler(handler: (top: number) => void): () => vo
 
     const count = Math.ceil(document.documentElement.offsetHeight / CONTAINER_HEIGHT);
     for (let i = 0; i < count; i++) {
+      console.log('count', count, 'i', i, elements[i], CONTAINER_HEIGHT);
       if (!elements[i]) {
         elements[i] = document.createElement('div');
         Object.assign(elements[i].style, {
@@ -76,6 +77,7 @@ function useStickyElement() {
 
   useEffect(() => {
     return registerScrollPositionHandler((scrollPosition) => {
+      console.log('scrollPosition', scrollPosition, 'inside useEffect');
       const heightWithOffset =
         document.documentElement.offsetHeight - (ref.current?.getBoundingClientRect().height || 0);
 
@@ -83,10 +85,10 @@ function useStickyElement() {
       const isAtEndPosition = scrollPosition >= heightWithOffset;
 
       const offset = isAtStartingPosition ? 0 : isAtEndPosition ? heightWithOffset : scrollPosition;
-
+      console.log('scrollPosition', scrollPosition, 'offset', offset);
       window.requestAnimationFrame(() => {
         if (ref.current) {
-          ref.current.style.transform = `translateY(${offset}px)`;
+          ref.current.style.transform = `translateY(${offset + 38}px)`;
         }
       });
     });
