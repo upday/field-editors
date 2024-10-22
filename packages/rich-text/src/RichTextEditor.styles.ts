@@ -15,11 +15,12 @@ export const styles = {
     fontSize: tokens.spacingM,
     fontFamily: tokens.fontStackPrimary,
     minHeight: '400px',
-    background: tokens.colorWhite,
+    background: tokens.blue900,
     outline: 'none',
     whiteSpace: 'pre-wrap',
     overflowWrap: 'break-word',
     webkitUserModify: 'read-write-plaintext-only',
+    marginTop: '38px',
     a: {
       span: {
         cursor: 'not-allowed',
