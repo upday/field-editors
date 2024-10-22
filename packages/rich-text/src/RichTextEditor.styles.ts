@@ -20,7 +20,7 @@ export const styles = {
     whiteSpace: 'pre-wrap',
     overflowWrap: 'break-word',
     webkitUserModify: 'read-write-plaintext-only',
-    marginTop: '38px',
+    marginTop: '38px !important',
     a: {
       span: {
         cursor: 'not-allowed',
