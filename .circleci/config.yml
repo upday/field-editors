@@ -7,7 +7,7 @@ executors:
   linux-node:
     resource_class: xlarge
     docker:
-      - image: cimg/node:14.17
+      - image: cimg/node:22.23.4
     environment:
       CYPRESS_INSTALL_BINARY: 0
   linux-cypress:
